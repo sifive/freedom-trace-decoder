@@ -1,0 +1,6 @@
+[submodule "src/trace-decoder"]
+	path = src/trace-decoder
+	url = git@github.com:sifive/trace-decoder.git
+[submodule "src/riscv-binutils"]
+	path = src/riscv-binutils
+	url = git@github.com:sifive/riscv-binutils-gdb.git
