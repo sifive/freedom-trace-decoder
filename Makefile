@@ -4,7 +4,7 @@ include scripts/Freedom.mk
 # Include version identifiers to build up the full version string
 include Version.mk
 PACKAGE_HEADING := freedom-trace-decoder
-PACKAGE_VERSION := $(TRACE_DECODER_VERSION)-$(FREEDOM_TRACE_DECODER_CODELINE)$(FREEDOM_TRACE_DECODER_GENERATION)b$(FREEDOM_TRACE_DECODER_BUILD)
+PACKAGE_VERSION := $(TRACE_DECODER_VERSION)-$(FREEDOM_TRACE_DECODER_ID)
 
 # Source code directory references
 SRCNAME_TRACE_DECODER := trace-decoder
@@ -43,8 +43,11 @@ $(OBJ_WIN64)/build/$(PACKAGE_HEADING)/libs.stamp: \
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/source.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
+	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/source.stamp,%/rec/$(PACKAGE_HEADING),$@)))
 	rm -rf $($@_INSTALL)
 	mkdir -p $($@_INSTALL)
+	rm -rf $($@_REC)
+	mkdir -p $($@_REC)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
 	cp -a $(SRCPATH_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
@@ -53,8 +56,10 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%,$@))
+	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
+	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
 # CC_FOR_TARGET is required for the ld testsuite.
-	cd $(dir $@)/bfd && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $(dir $@)/bfd)/configure \
+	cd $(dir $@)/bfd && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
@@ -62,9 +67,9 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>make-configure.log
-	$(MAKE) -C $(dir $@)/bfd &>$(dir $@)/bfd/make-build.log
-	cd $(dir $@)/intl && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $(dir $@)/intl)/configure \
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-bfd-make-configure.log
+	$(MAKE) -C $(dir $@)/bfd &>$($@_REC)/$(SRCNAME_BINUTILS)-bfd-make-build.log
+	cd $(dir $@)/intl && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
@@ -73,9 +78,9 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		--with-included-gettext \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>make-configure.log
-	$(MAKE) -C $(dir $@)/intl &>$(dir $@)/intl/make-build.log
-	cd $(dir $@)/libiberty && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $(dir $@)/libiberty)/configure \
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-intl-make-configure.log
+	$(MAKE) -C $(dir $@)/intl &>$($@_REC)/$(SRCNAME_BINUTILS)-intl-make-build.log
+	cd $(dir $@)/libiberty && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
@@ -83,9 +88,9 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>make-configure.log
-	$(MAKE) -C $(dir $@)/libiberty &>$(dir $@)/libiberty/make-build.log
-	cd $(dir $@)/opcodes && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $(dir $@)/opcodes)/configure \
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-libiberty-make-configure.log
+	$(MAKE) -C $(dir $@)/libiberty &>$($@_REC)/$(SRCNAME_BINUTILS)-libiberty-make-build.log
+	cd $(dir $@)/opcodes && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
@@ -93,9 +98,9 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>make-configure.log
-	$(MAKE) -C $(dir $@)/opcodes &>$(dir $@)/opcodes/make-build.log
-	cd $(dir $@)/zlib && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $(dir $@)/zlib)/configure \
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-opcodes-make-configure.log
+	$(MAKE) -C $(dir $@)/opcodes &>$($@_REC)/$(SRCNAME_BINUTILS)-opcodes-make-build.log
+	cd $(dir $@)/zlib && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
@@ -103,8 +108,8 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>make-configure.log
-	$(MAKE) -C $(dir $@)/zlib &>$(dir $@)/zlib/make-build.log
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-zlib-make-configure.log
+	$(MAKE) -C $(dir $@)/zlib &>$($@_REC)/$(SRCNAME_BINUTILS)-zlib-make-build.log
 	date > $@
 
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
@@ -112,6 +117,7 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
 	$(eval $@_BINUTILS := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS),$@))
-	$(MAKE) -C $(dir $@) BINUTILSPATH=$(abspath $($@_BINUTILS)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) all &>$(dir $@)/make-build.log
-	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$(dir $@)/make-install.log
+	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
+	$(MAKE) -C $(dir $@) BINUTILSPATH=$(abspath $($@_BINUTILS)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) all &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-build.log
+	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-install.log
 	date > $@
