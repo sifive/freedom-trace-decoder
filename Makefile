@@ -59,57 +59,23 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
 	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
 # CC_FOR_TARGET is required for the ld testsuite.
-	cd $(dir $@)/bfd && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
+	cd $(dir $@) && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
 		--prefix=$(abspath $(dir $@))/install \
 		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
-		$($($@_TARGET)-trace-configure) \
-		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-bfd-make-configure.log
-	$(MAKE) -C $(dir $@)/bfd &>$($@_REC)/$(SRCNAME_BINUTILS)-bfd-make-build.log
-	cd $(dir $@)/intl && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
-		--target=$(BINUTILS_TUPLE) \
-		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $(dir $@))/install \
-		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
-		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
+		--disable-werror \
 		--with-included-gettext \
+		--with-expat=no --with-mpc=no --with-mpfr=no --with-gmp=no \
+		--disable-gdb \
+		--disable-sim \
+		--disable-libdecnumber \
+		--disable-libreadline \
 		$($($@_TARGET)-trace-configure) \
 		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-intl-make-configure.log
-	$(MAKE) -C $(dir $@)/intl &>$($@_REC)/$(SRCNAME_BINUTILS)-intl-make-build.log
-	cd $(dir $@)/libiberty && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
-		--target=$(BINUTILS_TUPLE) \
-		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $(dir $@))/install \
-		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
-		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
-		$($($@_TARGET)-trace-configure) \
-		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-libiberty-make-configure.log
-	$(MAKE) -C $(dir $@)/libiberty &>$($@_REC)/$(SRCNAME_BINUTILS)-libiberty-make-build.log
-	cd $(dir $@)/opcodes && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
-		--target=$(BINUTILS_TUPLE) \
-		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $(dir $@))/install \
-		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
-		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
-		$($($@_TARGET)-trace-configure) \
-		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-opcodes-make-configure.log
-	$(MAKE) -C $(dir $@)/opcodes &>$($@_REC)/$(SRCNAME_BINUTILS)-opcodes-make-build.log
-	cd $(dir $@)/zlib && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
-		--target=$(BINUTILS_TUPLE) \
-		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $(dir $@))/install \
-		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
-		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
-		$($($@_TARGET)-trace-configure) \
-		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-zlib-make-configure.log
-	$(MAKE) -C $(dir $@)/zlib &>$($@_REC)/$(SRCNAME_BINUTILS)-zlib-make-build.log
+		CXXFLAGS="-O2" &>$($@_REC)/$(SRCNAME_BINUTILS)-make-configure.log
+	$(MAKE) -C $(dir $@) &>$($@_REC)/$(SRCNAME_BINUTILS)-make-build.log
 	date > $@
 
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
