@@ -58,6 +58,8 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp: \
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%,$@))
 	$(eval $@_BUILD := $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/build/$(PACKAGE_HEADING),$@))
 	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
+	rm -rf $(dir $@)
+	mkdir -p $(dir $@)
 # CC_FOR_TARGET is required for the ld testsuite.
 	cd $(dir $@) && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $($@_BUILD))/$(SRCNAME_BINUTILS)/configure \
 		--target=$(BINUTILS_TUPLE) \
