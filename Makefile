@@ -78,7 +78,7 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp: \
 	date > $@
 
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
-		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp
+		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
 	$(eval $@_BINUTILS := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/build/$(PACKAGE_HEADING)/build-binutils,$@))
@@ -87,8 +87,8 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
 	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-install.log
 	date > $@
 
-regress: \
-		$(OBJDIR)/native/$(PACKAGE_HEADING).native
-	mkdir -p $(dir $@)
-	PATH=$(abspath $(OBJDIR)/native/$(PACKAGE_TARNAME)/bin):$(PATH) dqr -v
-	date > $@
+#regress: \
+#		$(OBJDIR)/native/$(PACKAGE_HEADING).native
+#	mkdir -p $(dir $@)
+#	PATH=$(abspath $(OBJDIR)/native/$(PACKAGE_TARNAME)/bin):$(PATH) dqr -v
+#	date > $@

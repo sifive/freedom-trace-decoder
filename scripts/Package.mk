@@ -68,16 +68,19 @@ PACKAGE_TARBALL = $(wildcard $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(N
 ifneq ($(PACKAGE_TARBALL),)
 PACKAGE_TARNAME = $(basename $(basename $(notdir $(PACKAGE_TARBALL))))
 
-$(OBJDIR)/native/$(PACKAGE_HEADING).native: \
+$(OBJDIR)/native/$(PACKAGE_HEADING).package: \
 		$(PACKAGE_TARBALL)
 	mkdir -p $(dir $@)
 	rm -rf $(OBJDIR)/native/$(PACKAGE_TARNAME)
 	$(TAR) -xz -C $(OBJDIR)/native -f $(PACKAGE_TARBALL)
 	date > $@
 else
-$(OBJDIR)/native/$(PACKAGE_HEADING).native:
+$(OBJDIR)/native/$(PACKAGE_HEADING).package:
 	$(error No $(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).tar.gz tarball available for testing!)
 endif
+
+#.PHONY: native-regress
+#native-regress: $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(UBUNTU64).tar.gz
 
 .PHONY: cleanup
 cleanup:
