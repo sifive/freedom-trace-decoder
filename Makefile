@@ -53,20 +53,19 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 	cp -a $(SRCPATH_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
 	date > $@
 
-$(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp: \
+$(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp: \
 		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp
-	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%,$@))
-	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
-	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
+	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%,$@))
+	$(eval $@_BUILD := $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/build/$(PACKAGE_HEADING),$@))
+	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
 # CC_FOR_TARGET is required for the ld testsuite.
-	cd $(dir $@) && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) ./configure \
+	cd $(dir $@) && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $($@_BUILD))/$(SRCNAME_BINUTILS)/configure \
 		--target=$(BINUTILS_TUPLE) \
 		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $(dir $@))/install \
+		--prefix=$(abspath $($@_BUILD))/$(SRCNAME_BINUTILS)/install \
 		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
 		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
 		--disable-werror \
-		--with-included-gettext \
 		--with-expat=no --with-mpc=no --with-mpfr=no --with-gmp=no \
 		--disable-gdb \
 		--disable-sim \
@@ -82,8 +81,14 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
 		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS)/build.stamp
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
-	$(eval $@_BINUTILS := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/build/$(PACKAGE_HEADING)/$(SRCNAME_BINUTILS),$@))
+	$(eval $@_BINUTILS := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/build/$(PACKAGE_HEADING)/build-binutils,$@))
 	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
 	$(MAKE) -C $(dir $@) BINUTILSPATH=$(abspath $($@_BINUTILS)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) all &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-build.log
 	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-install.log
+	date > $@
+
+regress: \
+		$(OBJDIR)/native/$(PACKAGE_HEADING).native
+	mkdir -p $(dir $@)
+	PATH=$(abspath $(OBJDIR)/native/$(PACKAGE_TARNAME)/bin):$(PATH) dqr -v
 	date > $@

@@ -63,6 +63,22 @@ $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).src.tar.gz: \
 	$(TAR) --dereference --hard-dereference -C $(abspath $(PREFIXPATH).) --exclude bin --exclude obj -c .git* * | gzip > $(abspath $@)
 	rm -rf $(RECDIR)-$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE)
 
+# Installs native package.
+PACKAGE_TARBALL = $(wildcard $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).tar.gz)
+ifneq ($(PACKAGE_TARBALL),)
+PACKAGE_TARNAME = $(basename $(basename $(notdir $(PACKAGE_TARBALL))))
+
+$(OBJDIR)/native/$(PACKAGE_HEADING).native: \
+		$(PACKAGE_TARBALL)
+	mkdir -p $(dir $@)
+	rm -rf $(OBJDIR)/native/$(PACKAGE_TARNAME)
+	$(TAR) -xz -C $(OBJDIR)/native -f $(PACKAGE_TARBALL)
+	date > $@
+else
+$(OBJDIR)/native/$(PACKAGE_HEADING).native:
+	$(error No $(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).tar.gz tarball available for testing!)
+endif
+
 .PHONY: cleanup
 cleanup:
 	rm -rf $(OBJ_NATIVE)/rec/$(PACKAGE_HEADING)

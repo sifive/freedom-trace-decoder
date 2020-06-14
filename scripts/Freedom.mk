@@ -27,6 +27,9 @@ help:
 .PHONY: package
 package:
 
+.PHONY: regress
+regress:
+
 # Make uses /bin/sh by default, ignoring the user's value of SHELL.
 # Some systems now ship with /bin/sh pointing at dash, and this Makefile
 # requires bash
