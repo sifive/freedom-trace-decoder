@@ -89,8 +89,8 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
 	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-install.log
 	date > $@
 
-#regress: \
-#		$(OBJDIR)/native/$(PACKAGE_HEADING).native
-#	mkdir -p $(dir $@)
-#	PATH=$(abspath $(OBJDIR)/native/$(PACKAGE_TARNAME)/bin):$(PATH) dqr -v
-#	date > $@
+$(OBJDIR)/$(NATIVE)/test/$(PACKAGE_HEADING)/test.stamp: \
+		$(OBJDIR)/$(NATIVE)/test/$(PACKAGE_HEADING)/launch.stamp
+	mkdir -p $(dir $@)
+	PATH=$(abspath $(OBJDIR)/$(NATIVE)/launch/$(PACKAGE_TARNAME)/bin):$(PATH) dqr -v
+	date > $@

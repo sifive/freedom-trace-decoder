@@ -68,30 +68,35 @@ PACKAGE_TARBALL = $(wildcard $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(N
 ifneq ($(PACKAGE_TARBALL),)
 PACKAGE_TARNAME = $(basename $(basename $(notdir $(PACKAGE_TARBALL))))
 
-$(OBJDIR)/native/$(PACKAGE_HEADING).package: \
+$(OBJDIR)/$(NATIVE)/test/$(PACKAGE_HEADING)/launch.stamp: \
 		$(PACKAGE_TARBALL)
 	mkdir -p $(dir $@)
-	rm -rf $(OBJDIR)/native/$(PACKAGE_TARNAME)
-	$(TAR) -xz -C $(OBJDIR)/native -f $(PACKAGE_TARBALL)
+	rm -rf $(OBJDIR)/$(NATIVE)/launch/$(PACKAGE_TARNAME)
+	mkdir -p $(OBJDIR)/$(NATIVE)/launch
+	$(TAR) -xz -C $(OBJDIR)/$(NATIVE)/launch -f $(PACKAGE_TARBALL)
 	date > $@
 else
-$(OBJDIR)/native/$(PACKAGE_HEADING).package:
+$(OBJDIR)/$(NATIVE)/test/$(PACKAGE_HEADING)/launch.stamp:
 	$(error No $(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).tar.gz tarball available for testing!)
 endif
 
-#.PHONY: native-regress
-#native-regress: $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(UBUNTU64).tar.gz
+.PHONY: native-regress
+native-regress: $(OBJDIR)/$(NATIVE)/test/$(PACKAGE_HEADING)/test.stamp
 
 .PHONY: cleanup
 cleanup:
 	rm -rf $(OBJ_NATIVE)/rec/$(PACKAGE_HEADING)
+	rm -rf $(OBJ_NATIVE)/test/$(PACKAGE_HEADING)
 	rm -rf $(OBJ_NATIVE)/build/$(PACKAGE_HEADING)
+	rm -rf $(OBJ_NATIVE)/launch/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE)
 	rm -rf $(OBJ_NATIVE)/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE)
 	rm -rf $(RECDIR)-$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE)
 	rm -rf $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).tar.gz
 	rm -rf $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(NATIVE).src.tar.gz
 	rm -rf $(OBJ_WIN64)/rec/$(PACKAGE_HEADING)
+	rm -rf $(OBJ_WIN64)/test/$(PACKAGE_HEADING)
 	rm -rf $(OBJ_WIN64)/build/$(PACKAGE_HEADING)
+	rm -rf $(OBJ_WIN64)/launch/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(WIN64)
 	rm -rf $(OBJ_WIN64)/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(WIN64)
 	rm -rf $(RECDIR)-$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(WIN64)
 	rm -rf $(BINDIR)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$(WIN64).zip
