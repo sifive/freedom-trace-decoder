@@ -14,6 +14,7 @@ SRCPATH_BINUTILS := $(SRCDIR)/$(SRCNAME_BINUTILS)
 BARE_METAL_TUPLE := riscv64-unknown-elf
 BARE_METAL_CC_FOR_TARGET ?= $(BARE_METAL_TUPLE)-gcc
 BARE_METAL_CXX_FOR_TARGET ?= $(BARE_METAL_TUPLE)-g++
+BARE_METAL_BINUTILS = riscv-binutils
 
 # Some special package configure flags for specific targets
 $(WIN64)-binutils-host          := --host=$(WIN64)
@@ -55,7 +56,7 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 	mkdir -p $($@_REC)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
-	cp -a $(SRCPATH_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
+	cp -a $(SRCPATH_BINUTILS)/src/$(BARE_METAL_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
 	date > $@
 
 # Reusing binutils build script across binutils-metal, gcc-metal and trace-decoder
