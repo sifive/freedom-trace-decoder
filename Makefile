@@ -9,18 +9,19 @@ PACKAGE_VERSION := $(TRACE_DECODER_VERSION)-$(FREEDOM_TRACE_DECODER_ID)$(EXTRA_S
 # Source code directory references
 SRCNAME_TRACE_DECODER := trace-decoder
 SRCPATH_TRACE_DECODER := $(SRCDIR)/$(SRCNAME_TRACE_DECODER)
-SRCNAME_BINUTILS := riscv-binutils
+SRCNAME_BINUTILS := binutils-metal
 SRCPATH_BINUTILS := $(SRCDIR)/$(SRCNAME_BINUTILS)
-BINUTILS_TUPLE := riscv64-unknown-elf
-BINUTILS_CC_FOR_TARGET ?= $(BINUTILS_TUPLE)-gcc
+BARE_METAL_TUPLE := riscv64-unknown-elf
+BARE_METAL_CC_FOR_TARGET ?= $(BARE_METAL_TUPLE)-gcc
+BARE_METAL_CXX_FOR_TARGET ?= $(BARE_METAL_TUPLE)-g++
 
 # Some special package configure flags for specific targets
-$(WIN64)-trace-host          := --host=$(WIN64)
-$(WIN64)-tdc-cross           := x86_64-w64-mingw32-
-$(WIN64)-tdc-binext          := .exe
-$(UBUNTU64)-trace-host       := --host=x86_64-linux-gnu
-$(UBUNTU64)-trace-configure  := --enable-shared --enable-static
-$(REDHAT)-trace-configure    := --enable-shared --enable-static
+$(WIN64)-binutils-host          := --host=$(WIN64)
+$(WIN64)-tdc-cross              := x86_64-w64-mingw32-
+$(WIN64)-tdc-binext             := .exe
+$(UBUNTU64)-binutils-host       := --host=x86_64-linux-gnu
+$(UBUNTU64)-binutils-configure  := --enable-shared --enable-static
+$(REDHAT)-binutils-configure    := --enable-shared --enable-static
 
 # Setup the package targets and switch into secondary makefile targets
 # Targets $(PACKAGE_HEADING)/install.stamp and $(PACKAGE_HEADING)/libs.stamp
@@ -57,30 +58,11 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 	cp -a $(SRCPATH_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
 	date > $@
 
+# Reusing binutils build script across binutils-metal, gcc-metal and trace-decoder
+include $(SRCPATH_BINUTILS)/scripts/Support.mk
+
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp: \
-		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp
-	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%,$@))
-	$(eval $@_BUILD := $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/build/$(PACKAGE_HEADING),$@))
-	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/build-binutils/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
-	rm -rf $(dir $@)
-	mkdir -p $(dir $@)
-# CC_FOR_TARGET is required for the ld testsuite.
-	cd $(dir $@) && CC_FOR_TARGET=$(BINUTILS_CC_FOR_TARGET) $(abspath $($@_BUILD))/$(SRCNAME_BINUTILS)/configure \
-		--target=$(BINUTILS_TUPLE) \
-		$($($@_TARGET)-trace-host) \
-		--prefix=$(abspath $($@_BUILD))/$(SRCNAME_BINUTILS)/install \
-		--with-pkgversion="SiFive Trace-Decoder $(PACKAGE_VERSION)" \
-		--with-bugurl="https://github.com/sifive/freedom-tools/issues" \
-		--disable-werror \
-		--with-expat=no --with-mpc=no --with-mpfr=no --with-gmp=no \
-		--disable-gdb \
-		--disable-sim \
-		--disable-libdecnumber \
-		--disable-libreadline \
-		$($($@_TARGET)-trace-configure) \
-		CFLAGS="-O2" \
-		CXXFLAGS="-O2" &>$($@_REC)/build-binutils-make-configure.log
-	$(MAKE) -C $(dir $@) &>$($@_REC)/build-binutils-make-build.log
+		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/build-binutils/support.stamp
 	date > $@
 
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \

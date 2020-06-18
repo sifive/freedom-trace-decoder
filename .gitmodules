@@ -4,3 +4,6 @@
 [submodule "src/riscv-binutils"]
 	path = src/riscv-binutils
 	url = git@github.com:sifive/riscv-binutils-gdb.git
+[submodule "src/binutils-metal"]
+	path = src/binutils-metal
+	url = git@github.com:sifive/freedom-binutils-metal.git
