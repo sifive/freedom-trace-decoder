@@ -22,6 +22,7 @@ $(WIN64)-tdc-cross              := x86_64-w64-mingw32-
 $(WIN64)-tdc-binext             := .exe
 $(UBUNTU64)-binutils-host       := --host=x86_64-linux-gnu
 $(UBUNTU64)-binutils-configure  := --enable-shared --enable-static
+$(DARWIN)-binutils-configure    := --with-included-gettext
 $(REDHAT)-binutils-configure    := --enable-shared --enable-static
 
 # Setup the package targets and switch into secondary makefile targets
