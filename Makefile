@@ -6,12 +6,13 @@ include Version.mk
 PACKAGE_WORDING := Trace Decoder
 PACKAGE_HEADING := trace-decoder
 PACKAGE_VERSION := $(TRACE_DECODER_VERSION)-$(FREEDOM_TRACE_DECODER_ID)$(EXTRA_SUFFIX)
+PACKAGE_COMMENT := \# SiFive Freedom Package Properties File
 
 # Source code directory references
 SRCNAME_TRACE_DECODER := trace-decoder
-SRCPATH_TRACE_DECODER := $(SRCDIR)/$(SRCNAME_TRACE_DECODER)
+SRCPATH_TRACE_DECODER := src/$(SRCNAME_TRACE_DECODER)
 SRCNAME_BINUTILS := binutils-metal
-SRCPATH_BINUTILS := $(SRCDIR)/$(SRCNAME_BINUTILS)
+SRCPATH_BINUTILS := src/$(SRCNAME_BINUTILS)
 BARE_METAL_TUPLE := riscv64-unknown-elf
 BARE_METAL_CC_FOR_TARGET ?= $(BARE_METAL_TUPLE)-gcc
 BARE_METAL_CXX_FOR_TARGET ?= $(BARE_METAL_TUPLE)-g++
@@ -34,17 +35,24 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/install.stamp: \
 		$(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/install.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/install.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
+	$(eval $@_PROPERTIES := $(patsubst %/build/$(PACKAGE_HEADING)/install.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).properties,$@))
 	mkdir -p $(dir $@)
-	mkdir -p $(dir $@)/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).bundle/features
 	git log --format="[%ad] %s" > $(abspath $($@_INSTALL))/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).changelog
 	cp README.md $(abspath $($@_INSTALL))/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).readme.md
-	tclsh scripts/generate-feature-xml.tcl "$(PACKAGE_WORDING)" "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)" $($@_TARGET) $(abspath $($@_INSTALL))
-	tclsh scripts/generate-chmod755-sh.tcl $(abspath $($@_INSTALL))
-	tclsh scripts/generate-site-xml.tcl "$(PACKAGE_WORDING)" "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)" $($@_TARGET) $(abspath $(dir $@))/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).bundle
-	tclsh scripts/generate-bundle-mk.tcl $(abspath $($@_INSTALL)) RISCV_TAGS "$(FREEDOM_TRACE_DECODER_RISCV_TAGS)" TOOLS_TAGS "$(FREEDOM_TRACE_DECODER_TOOLS_TAGS)"
-	cp $(abspath $($@_INSTALL))/bundle.mk $(abspath $(dir $@))/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).bundle
-	cd $($@_INSTALL); zip -rq $(abspath $(dir $@))/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET).bundle/features/$(PACKAGE_HEADING)_$(FREEDOM_TRACE_DECODER_ID)_$(TRACE_DECODER_VERSION).jar *
-	tclsh scripts/check-maximum-path-length.tcl $(abspath $($@_INSTALL)) "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)"
+	rm -f $(abspath $($@_PROPERTIES))
+	echo "$(PACKAGE_COMMENT)" > $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_TYPE = freedom-tools" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_DESC_SEG = $(PACKAGE_WORDING)" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_FIXED_ID = $(PACKAGE_HEADING)" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_BUILD_ID = $(FREEDOM_TRACE_DECODER_ID)$(EXTRA_SUFFIX)" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_CORE_VER = $(TRACE_DECODER_VERSION)" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_TARGET = $($@_TARGET)" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_VENDOR = SiFive" >> $(abspath $($@_PROPERTIES))
+	echo "PACKAGE_RIGHTS = sifive-v00 eclipse-v20" >> $(abspath $($@_PROPERTIES))
+	echo "RISCV_TAGS = $(FREEDOM_TRACE_DECODER_RISCV_TAGS)" >> $(abspath $($@_PROPERTIES))
+	echo "TOOLS_TAGS = $(FREEDOM_TRACE_DECODER_TOOLS_TAGS)" >> $(abspath $($@_PROPERTIES))
+	cp $(abspath $($@_PROPERTIES)) $(abspath $($@_INSTALL))/
+	tclsh scripts/check-maximum-path-length.tcl $(abspath $($@_INSTALL)) "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)$(EXTRA_SUFFIX)"
 	tclsh scripts/check-same-name-different-case.tcl $(abspath $($@_INSTALL))
 	date > $@
 
@@ -64,18 +72,18 @@ $(OBJ_WIN64)/build/$(PACKAGE_HEADING)/libs.stamp: \
 $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp:
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/source.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/source.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
-	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/source.stamp,%/rec/$(PACKAGE_HEADING),$@)))
-	tclsh scripts/check-naming-and-version-syntax.tcl "$(PACKAGE_WORDING)" "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)"
+	$(eval $@_BUILDLOG := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/source.stamp,%/buildlog/$(PACKAGE_HEADING),$@)))
+	tclsh scripts/check-naming-and-version-syntax.tcl "$(PACKAGE_WORDING)" "$(PACKAGE_HEADING)" "$(TRACE_DECODER_VERSION)" "$(FREEDOM_TRACE_DECODER_ID)$(EXTRA_SUFFIX)"
 	rm -rf $($@_INSTALL)
 	mkdir -p $($@_INSTALL)
-	rm -rf $($@_REC)
-	mkdir -p $($@_REC)
+	rm -rf $($@_BUILDLOG)
+	mkdir -p $($@_BUILDLOG)
 	rm -rf $(dir $@)
 	mkdir -p $(dir $@)
-	git log > $($@_REC)/$(PACKAGE_HEADING)-git-commit.log
-	cp .gitmodules $($@_REC)/$(PACKAGE_HEADING)-git-modules.log
-	git remote -v > $($@_REC)/$(PACKAGE_HEADING)-git-remote.log
-	git submodule status > $($@_REC)/$(PACKAGE_HEADING)-git-submodule.log
+	git log > $($@_BUILDLOG)/$(PACKAGE_HEADING)-git-commit.log
+	cp .gitmodules $($@_BUILDLOG)/$(PACKAGE_HEADING)-git-modules.log
+	git remote -v > $($@_BUILDLOG)/$(PACKAGE_HEADING)-git-remote.log
+	git submodule status > $($@_BUILDLOG)/$(PACKAGE_HEADING)-git-submodule.log
 	cp -a $(SRCPATH_BINUTILS)/src/$(BARE_METAL_BINUTILS) $(SRCPATH_TRACE_DECODER) $(dir $@)
 	date > $@
 
@@ -91,9 +99,9 @@ $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp: \
 	$(eval $@_TARGET := $(patsubst $(OBJDIR)/%/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%,$@))
 	$(eval $@_INSTALL := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/install/$(PACKAGE_HEADING)-$(PACKAGE_VERSION)-$($@_TARGET),$@))
 	$(eval $@_BINUTILS := $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/build/$(PACKAGE_HEADING)/build-binutils,$@))
-	$(eval $@_REC := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/rec/$(PACKAGE_HEADING),$@)))
-	$(MAKE) -C $(dir $@) BINUTILSPATH=$(abspath $($@_BINUTILS)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) all &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-build.log
-	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_REC)/$(SRCNAME_TRACE_DECODER)-make-install.log
+	$(eval $@_BUILDLOG := $(abspath $(patsubst %/build/$(PACKAGE_HEADING)/$(SRCNAME_TRACE_DECODER)/build.stamp,%/buildlog/$(PACKAGE_HEADING),$@)))
+	$(MAKE) -C $(dir $@) BINUTILSPATH=$(abspath $($@_BINUTILS)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) all &>$($@_BUILDLOG)/$(SRCNAME_TRACE_DECODER)-make-build.log
+	$(MAKE) -j1 -C $(dir $@) INSTALLPATH=$(abspath $($@_INSTALL)) CROSSPREFIX=$($($@_TARGET)-tdc-cross) install &>$($@_BUILDLOG)/$(SRCNAME_TRACE_DECODER)-make-install.log
 	tclsh scripts/dyn-lib-check-$($@_TARGET).tcl $(abspath $($@_INSTALL))/bin/dqr
 	date > $@
 
